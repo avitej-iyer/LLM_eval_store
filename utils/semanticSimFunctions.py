@@ -1,10 +1,14 @@
 
 # https://huggingface.co/michiyasunaga/BioLinkBERT-large
 # https://medium.com/@adriensieg/text-similarities-da019229c894
+import sys
+sys.path.insert(0,'/scratch/aqi5157/pip_packages_and_cache/packages')
 
 import torch
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+
+
 
 
 #Mean Pooling - Take attention mask into account for correct averaging

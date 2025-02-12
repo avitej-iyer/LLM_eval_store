@@ -1,3 +1,10 @@
+import sys
+sys.path.insert(0,'/scratch/aqi5157/pip_packages_and_cache/packages')
+print(sys.path)
+
+import os
+os.environ['TRANSFORMERS_CACHE'] = './cache'
+
 from transformers import AutoTokenizer, AutoModel
 from semanticSimFunctions import getSentenceEmbedding
 from sklearn.metrics.pairwise import cosine_similarity
@@ -17,16 +24,18 @@ parser.add_argument('--emb_file', type=str, help='embedding of all GO terms file
 parser.add_argument('--topn', type=int, help='collect top n hits names and sim scores')
 parser.add_argument('--output_file', type=str, help='output file path')
 parser.add_argument('--background_file', default=None, required=False, type=str, help='all go sim background file path')
+parser.add_argument('--llm_model', default=None, required=False, type=str, help='base model for name searching')
 
 args = parser.parse_args()
 input_file = args.input_file
 emb_file = args.emb_file 
 output_file = args.output_file 
 background_file = args.background_file 
+llm_name = args.llm_model
 
 
 # load the go terms with llm name and analysis (1000 terms)
-df = pd.read_csv(input_file)
+df = pd.read_csv(input_file, sep="\t")
 df.set_index('GO', inplace=True)
 
 # get a pool of GO names 
@@ -73,7 +82,7 @@ for ind, row in tqdm(df.iterrows(), total=df.shape[0]):
         try: 
             GO_term = row['Term_Description'] # the actual GO term
             # get the name column 
-            name_col = [col for col in df.columns if 'llm_assigned_name' in col.lower()][0]
+            name_col = [col for col in df.columns if f'{llm_name}_assigned_name' in col.lower()][0]
             # print(name_col)
             LLM_name = row[name_col] # the LLM name
             # get llm name embedding
